@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from models import get_db, Survey, SurveyResponse, SurveyAnswer, SurveyQuestion
+from db import get_db
+from models import Survey, SurveyResponse, SurveyAnswer, SurveyQuestion
 from typing import List, Dict
 import statistics
 
