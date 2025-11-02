@@ -2,11 +2,12 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, APIRouter, Depends, Body
 from sqlalchemy.orm import Session
 import logging
 import os
 from dotenv import load_dotenv
+from pydantic import BaseModel
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -16,6 +17,13 @@ ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+router = APIRouter()
+
+# ==================== SCHEMAS ====================
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 # ==================== FUNÇÕES DE SENHA ====================
 
@@ -121,3 +129,28 @@ def get_current_user(token: str, db: Session):
         return user
     except:
         raise HTTPException(status_code=401, detail="Erro na autenticação")
+
+# ==================== ENDPOINTS ====================
+
+@router.post("/api/auth/login")
+def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+    """Login com email e senha"""
+    from models import User, get_db
+    
+    # Buscar usuário por EMAIL
+    user = db.query(User).filter(User.email == credentials.email).first()
+    
+    # Verificar se usuário existe e senha está correta
+    if not user or not verify_password(credentials.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="Email ou senha inválidos")
+    
+    # Criar token
+    access_token = create_access_token({"sub": user.username})
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": user.id,
+        "email": user.email,
+        "username": user.username
+    }
