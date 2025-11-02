@@ -124,3 +124,5 @@ class SurveyKPI(Base):
     
     # Relacionamentos
     survey = relationship("Survey", foreign_keys=[survey_id])
+
+

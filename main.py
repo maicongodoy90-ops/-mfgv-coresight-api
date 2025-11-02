@@ -8,11 +8,22 @@ import os
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from surveys import router as surveys_router
 import logging
 
 import schemas
 import auth
 from models import Base
+
+from loguru import logger
+logger.add("logs/info.log", rotation="1 week", retention="4 weeks", level="INFO")
+
+from auth import router as auth_router
+from calculo import router as calculo_router
+# Adicione outros módulos/routers que você tenha, por exemplo:
+# from surveys import router as surveys_router
+# from analytics import router as analytics_router
+
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -721,3 +732,34 @@ def get_full_analysis(
     except Exception as e:
         logger.error(f"❌ Erro ao obter análise: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from calculo import router as calculo_router
+
+
+app = FastAPI()
+
+app.include_router(surveys_router)
+app.include_router(auth_router)
+app.include_router(calculo_router)
+# E para cada módulo, repita:
+# app.include_router(surveys_router)
+# app.include_router(analytics_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Troque pelo domínio real na produção!
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.include_router(calculo_router)
+from calculo import router as calculo_router
+app.include_router(calculo_router)
+from analytics import router as analytics_router
+app.include_router(analytics_router)
+from recommendations import router as recommendations_router
+app.include_router(recommendations_router)
+

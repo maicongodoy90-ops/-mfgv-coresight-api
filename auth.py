@@ -8,7 +8,9 @@ import logging
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
-from models import get_db
+from db import get_db
+from models import User
+
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -136,7 +138,7 @@ def get_current_user(token: str, db: Session):
 @router.post("/api/auth/login")
 def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     """Login com email e senha"""
-    from models import User, get_db
+
     
     # Buscar usuário por EMAIL
     user = db.query(User).filter(User.email == credentials.email).first()

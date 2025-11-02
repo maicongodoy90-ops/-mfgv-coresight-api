@@ -9,3 +9,5 @@ python-jose
 passlib[bcrypt]
 email-validator
 pydantic[email]
+loguru
+pytest
