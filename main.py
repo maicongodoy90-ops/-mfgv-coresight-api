@@ -763,3 +763,11 @@ app.include_router(analytics_router)
 from recommendations import router as recommendations_router
 app.include_router(recommendations_router)
 
+from fastapi import APIRouter
+from db import engine
+from models import Base
+
+@app.get("/criar-tabelas")
+def criar_tabelas():
+    Base.metadata.create_all(bind=engine)
+    return {"msg": "Tabelas criadas na nuvem!"}

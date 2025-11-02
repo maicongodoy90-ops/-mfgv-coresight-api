@@ -1,5 +1,4 @@
-from models import Base, engine
-
-# Criar todas as tabelas
+from db import engine
+from models import Base
 Base.metadata.create_all(bind=engine)
-print("✅ Tabelas criadas com sucesso!")
+print("Tabelas criadas!")
