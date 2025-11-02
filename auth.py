@@ -8,6 +8,7 @@ import logging
 import os
 from dotenv import load_dotenv
 from pydantic import BaseModel
+from models import get_db
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -154,3 +155,4 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
         "email": user.email,
         "username": user.username
     }
+
