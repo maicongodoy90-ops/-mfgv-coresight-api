@@ -7,3 +7,5 @@ PyJWT
 pydantic
 python-jose
 passlib[bcrypt]
+email-validator
+pydantic[email]
