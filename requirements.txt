@@ -6,3 +6,4 @@ python-dotenv
 PyJWT
 pydantic
 python-jose
+passlib[bcrypt]
