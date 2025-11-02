@@ -763,9 +763,11 @@ app.include_router(analytics_router)
 from recommendations import router as recommendations_router
 app.include_router(recommendations_router)
 
-from fastapi import APIRouter
+from fastapi import FastAPI
 from db import engine
 from models import Base
+
+app = FastAPI()  # Se não existir, use o nome do seu app
 
 @app.get("/criar-tabelas")
 def criar_tabelas():
