@@ -225,15 +225,14 @@ def criar_admin(db: Session = Depends(get_db)):
 
 
 # ==================== STARTUP/SHUTDOWN ====================
-
 @app.on_event("startup")
 async def startup_event():
+    from models import Base
+    from db import engine
+    Base.metadata.create_all(bind=engine)
     logger.info("🚀 API iniciando...")
     logger.info("✅ API pronta para receber requisições!")
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    logger.info("🛑 API encerrando...")
 
 # ==================== TRATAMENTO DE ERROS ====================
 
