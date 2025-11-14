@@ -10,6 +10,9 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from surveys import router as surveys_router
 import logging
+from models import User, Base
+from auth import get_password_hash
+from db import engine
 
 import schemas
 import auth
