@@ -10,6 +10,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 import logging
 from loguru import logger
+from fastapi.responses import JSONResponse
 
 # ==================== IMPORTS ====================
 from models import User, Base
@@ -190,17 +191,15 @@ def refresh(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
 
 # ==================== SETUP ADMIN ====================
 
+from fastapi.responses import JSONResponse
+
 @app.post("/admin-setup", tags=["Setup"])
 def criar_admin(db: Session = Depends(get_db)):
     """Cria o usuário admin padrão (rodar uma única vez!)"""
-    
     try:
-        # Verifica se já existe admin
         admin_existe = db.query(User).filter(User.email == "admin@test.com").first()
         if admin_existe:
-            return {"msg": "Admin já existe!"}
-        
-        # Cria novo admin
+            return JSONResponse(content={"msg": "Admin já existe!"})
         novo_admin = User(
             username="admin",
             email="admin@test.com",
@@ -212,14 +211,17 @@ def criar_admin(db: Session = Depends(get_db)):
         db.add(novo_admin)
         db.commit()
         db.refresh(novo_admin)
-        
         logger.info(f"✅ Admin criado com sucesso")
-        return {"msg": "Admin criado com sucesso!", "email": "admin@test.com", "password": "admin123"}
-    
+        return JSONResponse(content={
+            "msg": "Admin criado com sucesso!",
+            "email": "admin@test.com",
+            "password": "admin123"
+        })
     except Exception as e:
         db.rollback()
         logger.error(f"❌ Erro ao criar admin: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
 
 
 # ==================== STARTUP/SHUTDOWN ====================
@@ -238,21 +240,19 @@ async def shutdown_event():
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc):
     logger.error(f"HTTP Error: {exc.status_code} - {exc.detail}")
-    return {
+    return JSONResponse(status_code=exc.status_code, content={
         "error": exc.detail,
         "status_code": exc.status_code,
         "timestamp": datetime.now().isoformat()
-    }
+    })
+
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request, exc):
     logger.error(f"Erro não tratado: {str(exc)}")
-    return {
+    return JSONResponse(status_code=500, content={
         "error": "Erro interno do servidor",
         "status_code": 500,
         "timestamp": datetime.now().isoformat()
-    }
+    })
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True, log_level="info")
