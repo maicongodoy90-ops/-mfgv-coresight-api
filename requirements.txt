@@ -11,3 +11,5 @@ email-validator
 pydantic[email]
 loguru
 pytest
+bcrypt==3.2.0
+passlib==1.7.4
