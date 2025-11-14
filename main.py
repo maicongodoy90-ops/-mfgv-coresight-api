@@ -769,7 +769,34 @@ from models import Base
 
 app = FastAPI()  # Se não existir, use o nome do seu app
 
-@app.get("/criar-tabelas")
-def criar_tabelas():
-    Base.metadata.create_all(bind=engine)
-    return {"msg": "Tabelas criadas na nuvem!"}
+from fastapi import FastAPI
+from db import engine
+from models import Base, User
+from auth import get_password_hash
+
+@app.post("/admin-setup")
+def criar_admin():
+    """Cria o usuário admin padrão (rodar uma única vez!)"""
+    db = Session(engine)
+    
+    # Verifica se já existe admin
+    admin_existe = db.query(User).filter(User.email == "admin@test.com").first()
+    if admin_existe:
+        db.close()
+        return {"msg": "Admin já existe!"}
+    
+    # Cria novo admin
+    novo_admin = User(
+        username="admin",
+        email="admin@test.com",
+        full_name="Administrador",
+        hashed_password=get_password_hash("admin123"),
+        is_active=True,
+        role="admin"
+    )
+    db.add(novo_admin)
+    db.commit()
+    db.close()
+    
+    return {"msg": "Admin criado com sucesso!", "email": "admin@test.com", "password": "admin123"}
+
