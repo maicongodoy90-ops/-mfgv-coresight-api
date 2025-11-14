@@ -221,6 +221,7 @@ def criar_admin(db: Session = Depends(get_db)):
         logger.error(f"❌ Erro ao criar admin: {str(e)}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
+
 # ==================== STARTUP/SHUTDOWN ====================
 
 @app.on_event("startup")
